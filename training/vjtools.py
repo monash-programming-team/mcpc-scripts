@@ -2,8 +2,17 @@
 import requests as r
 import pandas as pd
 import time
+import json
 from pyquery.pyquery import PyQuery as pq
 
+group_url = "https://vjudge.net/group/monashicpc"
+
+def get_group_view(url=group_url):
+	resp = r.get(url)
+	page = pq(resp.content)
+	raw = page("body textarea").text()
+	data = json.loads(raw)
+	return data
 
 def probsOverview(cid):
 	url = "https://vjudge.net/contest/" + cid
@@ -66,9 +75,11 @@ def get_all_score(cids):
 def main():
 	cids = input().split()
 	raw_rows = get_all_score(cids)
+	group_view = get_group_view()
 
-	exclude = ['GivAchanceee']
-	rows = [i for i in raw_rows if i['username'] not in exclude]
+	rows = []
+	visible_members = [i['username'] for i in group_view['memberBriefs'] if i['role'] == 0]
+	rows = [i for i in raw_rows if i['username'] in visible_members]
 	df = pd.DataFrame(rows)
 	t = pd.pivot_table(
     df, 

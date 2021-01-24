@@ -3,7 +3,7 @@ import sys
 import random
 import string
 
-random.seed(0)
+random.seed()
 
 def format_teamid(tid):
     if tid == "None":
